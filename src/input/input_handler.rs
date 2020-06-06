@@ -1,32 +1,48 @@
-use glutin::event::{KeyboardInput, VirtualKeyCode};
+use glutin::event::{KeyboardInput, VirtualKeyCode, ElementState};
 
-use crate::input::{CursorDelta, CursorHandler, KeyboardHandler};
+use crate::input::{CursorDelta, CursorHandler, Keyboard};
+use crate::input::axis::{Axis, KeyboardAxis};
+use std::collections::HashMap;
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct InputHandler {
-    keyboard: KeyboardHandler,
+    keyboard: Keyboard,
     cursor: CursorHandler,
+    axes: HashMap<String, Vec<Box<dyn Axis>>>
 }
 
-impl InputHandler {
-    pub fn process_keyboard(&mut self, input: KeyboardInput) {
-        self.keyboard.process(input)
+impl <'a>InputHandler {
+
+    pub fn new() -> Self {
+        let mut i = Self::default();
+        i.register_axis("z", KeyboardAxis::new(VirtualKeyCode::W, VirtualKeyCode::S));
+        i.register_axis("x", KeyboardAxis::new(VirtualKeyCode::D, VirtualKeyCode::A));
+        i
+    }
+
+    pub fn process_keyboard(
+        &mut self,
+        KeyboardInput {
+            virtual_keycode,
+            state,
+            ..
+        }: KeyboardInput
+    ) {
+
+        if let Some(keycode) = virtual_keycode {
+            match state {
+                ElementState::Pressed => { self.keyboard.press(keycode) }
+                ElementState::Released => { self.keyboard.release(keycode) }
+            };
+        };
     }
 
     pub fn process_cursor(&mut self, input: (f64, f64)) {
         self.cursor.process(input)
     }
 
-    pub fn is_key_pressed(&self, keycode: VirtualKeyCode) -> bool {
-        self.keyboard.is_pressed(keycode)
-    }
-
-    pub fn just_pressed(&self, keycode: VirtualKeyCode) -> bool {
-        self.keyboard.just_pressed(keycode)
-    }
-
-    pub fn just_released(&self, keycode: VirtualKeyCode) -> bool {
-        self.keyboard.just_released(keycode)
+    pub fn key_pressed(&self, keycode: VirtualKeyCode) -> bool {
+        self.keyboard.pressed(keycode)
     }
 
     pub fn get_cursor_delta(&self) -> &CursorDelta {
@@ -35,6 +51,22 @@ impl InputHandler {
 
     pub fn clear(&mut self) {
         self.cursor.clear();
-        self.keyboard.clear();
+    }
+
+    pub fn register_axis<T : 'static + Axis>(&mut self, name: &str, axis: T) {
+        self.axes.entry(name.to_string()).or_default().push(Box::new(axis))
+    }
+
+    pub fn get_axis(&self, name: &str) -> f32 {
+
+        let mut val = 0.0;
+
+        if let Some(axes) = self.axes.get(name) {
+            for axis in axes {
+                val += axis.get_value(self);
+            }
+        }
+
+        return val
     }
 }

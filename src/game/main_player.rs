@@ -2,7 +2,6 @@ use crate::input::InputHandler;
 use crate::render::camera::{Camera, PerspectiveCamera};
 
 use core::world::WorldCoordinate;
-use glutin::event::VirtualKeyCode;
 use math::vector::Vector3;
 
 const SPEED: f64 = 20.0;
@@ -31,6 +30,11 @@ impl MainPlayer {
     }
 
     pub fn update(&mut self, time_delta: f64, input: &InputHandler) {
+
+        let xaxis = input.get_axis("x");
+        let yaxis = 0.0;
+        let zaxis = input.get_axis("z");
+
         let cursor_delta = input.get_cursor_delta();
         let camera_delta = Vector3 {
             x: cursor_delta.y as f32,
@@ -48,34 +52,6 @@ impl MainPlayer {
         camera_angles.y %= 360.0;
 
         self.camera.set_euler_angles(camera_angles);
-
-        let mut xaxis = 0.0;
-        let mut yaxis = 0.0;
-        let mut zaxis = 0.0;
-
-        if input.is_key_pressed(VirtualKeyCode::W) {
-            zaxis += 1.0;
-        }
-
-        if input.is_key_pressed(VirtualKeyCode::S) {
-            zaxis -= 1.0;
-        }
-
-        if input.is_key_pressed(VirtualKeyCode::A) {
-            xaxis -= 1.0;
-        }
-
-        if input.is_key_pressed(VirtualKeyCode::D) {
-            xaxis += 1.0;
-        }
-
-        if input.is_key_pressed(VirtualKeyCode::Space) {
-            yaxis += 1.0;
-        }
-
-        if input.is_key_pressed(VirtualKeyCode::LShift) {
-            yaxis -= 1.0;
-        }
 
         let angle = self.camera.euler_angles().y.to_radians();
 

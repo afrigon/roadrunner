@@ -93,7 +93,7 @@ impl ChunkRenderer {
                 texture_id = info >> 4u;
 
                 world_position = vec3(chunk_position.x, 0, chunk_position.y) + position;
-                
+
                 gl_Position = projection_view * vec4(world_position, 1.0);
             }
         "#;
@@ -113,7 +113,7 @@ impl ChunkRenderer {
             uniform vec3 camera_position;
             uniform vec3 fog_color;
             uniform uint render_distance;
-            
+
             vec4 get_color(uint id) {
                 return light * texture(diffuse_textures, vec3(uv, id));
             }
@@ -143,7 +143,7 @@ impl ChunkRenderer {
                     } else {
                         color = get_color(texture_id - 1) * cheapColorMapOutput;
                     }
-                    
+
                     color = apply_fog(color);
 
                     if (color.a < 0.01) {
@@ -205,11 +205,11 @@ impl ChunkRenderer {
     }
 
     pub fn update(&mut self, world: &World, input: &InputHandler) {
-        if input.just_pressed(VirtualKeyCode::J) && self.render_distance > MIN_RENDER_DISTANCE {
+        if input.key_pressed(VirtualKeyCode::J) && self.render_distance > MIN_RENDER_DISTANCE {
             self.render_distance -= 1;
         }
 
-        if input.just_pressed(VirtualKeyCode::K) && self.render_distance < LOAD_DISTANCE {
+        if input.key_pressed(VirtualKeyCode::K) && self.render_distance < LOAD_DISTANCE {
             self.render_distance += 1;
         }
 

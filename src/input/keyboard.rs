@@ -1,60 +1,30 @@
-use glutin::event::{ElementState, KeyboardInput, VirtualKeyCode};
-use std::collections::HashSet;
+use glutin::event::VirtualKeyCode;
+use std::collections::HashMap;
 
 #[derive(Debug, Default)]
-pub struct KeyboardHandler {
-    pressed: HashSet<VirtualKeyCode>,
-    pressed_since_clear: HashSet<VirtualKeyCode>,
-    released_since_clear: HashSet<VirtualKeyCode>,
+struct KeyState {
+    pressed: bool
 }
 
-impl KeyboardHandler {
-    pub fn process(
-        &mut self,
-        KeyboardInput {
-            virtual_keycode,
-            state,
-            ..
-        }: KeyboardInput,
-    ) {
-        if let Some(keycode) = virtual_keycode {
-            // println!("{:?}", keycode);
+#[derive(Debug, Default)]
+pub struct Keyboard {
+    states: HashMap<VirtualKeyCode, KeyState>
+}
 
-            match state {
-                ElementState::Pressed => {
-                    if !self.is_pressed(keycode) {
-                        self.pressed_since_clear.insert(keycode);
-                    }
-                    self.pressed.insert(keycode);
-                }
-                ElementState::Released => {
-                    if self.is_pressed(keycode) {
-                        self.released_since_clear.insert(keycode);
-                    }
-                    self.pressed.remove(&keycode);
-                }
-            };
+impl Keyboard {
+    pub fn press(&mut self, keycode: VirtualKeyCode) {
+        self.states.entry(keycode).or_default().pressed = true;
+    }
+
+    pub fn release(&mut self, keycode: VirtualKeyCode) {
+        self.states.entry(keycode).or_default().pressed = false;
+    }
+
+    pub fn pressed(&self, keycode: VirtualKeyCode) -> bool {
+        if let Some(state) = self.states.get(&keycode) {
+            return state.pressed
         }
-    }
 
-    /// indicates a currently is currently being held
-    pub fn is_pressed(&self, keycode: VirtualKeyCode) -> bool {
-        self.pressed.contains(&(keycode))
-    }
-
-    /// indicates a previously unpressed key was just pressed
-    pub fn just_pressed(&self, keycode: VirtualKeyCode) -> bool {
-        self.pressed_since_clear.contains(&keycode)
-    }
-
-    /// indicates a previously pressed key was just released
-    pub fn just_released(&self, keycode: VirtualKeyCode) -> bool {
-        self.released_since_clear.contains(&keycode)
-    }
-
-    /// to call at the end of each gameloop
-    pub fn clear(&mut self) {
-        self.pressed_since_clear.clear();
-        self.released_since_clear.clear()
+        return false
     }
 }

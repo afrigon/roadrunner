@@ -33,7 +33,7 @@ fn main() -> io::Result<()> {
     let display = Display::new(PKG_NAME, &event_loop);
     let (width, height) = display.size();
 
-    let mut input_handler = InputHandler::default();
+    let mut input_handler = InputHandler::new();
 
     #[cfg(not(feature = "remote"))]
     let game_type = GameType::Local;
