@@ -32,7 +32,7 @@ impl PerspectiveProjection {
     }
 
     fn generate_matrix(&mut self) {
-        let y_scale = 1.0 / (self.fov.to_radians() / 2.0).tan();
+        let y_scale = (self.fov.to_radians() / 2.0).tan().recip();
         let x_scale = y_scale / self.aspect_ratio;
         let frustum_length = self.far - self.near;
 
