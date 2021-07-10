@@ -63,6 +63,36 @@ impl Mesh {
         self.vbo_count += 1;
     }
 
+    pub fn add_vbo_u32(&mut self, data: &Vec<u32>) {
+        let mut vbo: GLuint = 0;
+
+        self.bind();
+
+        unsafe {
+            gl::GenBuffers(1, &mut vbo);
+            gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
+            gl::BufferData(
+                gl::ARRAY_BUFFER,
+                (data.len() * mem::size_of::<u32>()) as GLsizeiptr,
+                data.as_ptr() as *const gl::types::GLvoid,
+                gl::STATIC_DRAW,
+            );
+
+            gl::VertexAttribIPointer(
+                self.vbo_count,
+                1,
+                gl::UNSIGNED_INT,
+                0,
+                ptr::null(),
+            );
+            gl::EnableVertexAttribArray(self.vbo_count);
+        }
+
+        self.buffers.push(vbo);
+        self.vbo_count += 1;
+    }
+
+
     fn add_ebo(&mut self, indices: &Vec<GLuint>) {
         let mut ebo: GLuint = 0;
 

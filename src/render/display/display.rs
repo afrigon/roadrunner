@@ -10,7 +10,7 @@ pub struct Display {
 impl Display {
     #[allow(unused_must_use)]
     pub fn new(title: &'static str, event_loop: &EventLoop<()>) -> Self {
-        let monitor = event_loop.primary_monitor();
+        let monitor = event_loop.primary_monitor().unwrap();
         let psize = monitor.size();
         let size = Size::Physical(psize);
 

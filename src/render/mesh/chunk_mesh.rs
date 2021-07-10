@@ -177,7 +177,7 @@ impl ChunkMesh {
     fn generate(&mut self) {
         if !self.vertices.is_empty() {
             self.mesh = Some(Mesh::new(&self.vertices, &self.indices));
-            self.mesh.as_mut().unwrap().add_vbo(&self.vertices_info);
+            self.mesh.as_mut().unwrap().add_vbo_u32(&self.vertices_info);
         }
     }
 }
